@@ -25,31 +25,31 @@ public class JsonParser {
     private void parseObject(JsonTokenizer tokenizer) {
         assertHasMoreTokens(tokenizer);
         tokenizer.parseToken();
-        assertThisTokenType(tokenizer, TokenTypes.JSON_OBJECT_START);
+        assertThisTokenType(tokenizer, TokenTypes.JSON_CURLY_BRACKET_LEFT);
         setElementData     (tokenizer, ElementTypes.JSON_OBJECT_START);
 
         tokenizer.nextToken();
         tokenizer.parseToken();
 
-        while( tokenizer.tokenType() != TokenTypes.JSON_OBJECT_END) {
+        while( tokenizer.tokenType() != TokenTypes.JSON_CURLY_BRACKET_RIGHT) {
             assertThisTokenType(tokenizer, TokenTypes.JSON_STRING_TOKEN);
             setElementData(tokenizer, ElementTypes.JSON_PROPERTY_NAME);
 
             tokenizer.nextToken();
             tokenizer.parseToken();
-            assertThisTokenType(tokenizer, TokenTypes.JSON_PROPERTY_NAME_VALUE_SEPARATOR);
+            assertThisTokenType(tokenizer, TokenTypes.JSON_COLON);
 
             tokenizer.nextToken();
             tokenizer.parseToken();
             if(tokenizer.tokenType() == TokenTypes.JSON_STRING_TOKEN) {
                 setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE);
-            } else if(tokenizer.tokenType() == TokenTypes.JSON_ARRAY_START) {
+            } else if(tokenizer.tokenType() == TokenTypes.JSON_SQUARE_BRACKET_LEFT) {
                 parseArray(tokenizer);
             }
 
             tokenizer.nextToken();
             tokenizer.parseToken();
-            if(tokenizer.tokenType() == TokenTypes.JSON_PROPERTY_SEPARATOR) {
+            if(tokenizer.tokenType() == TokenTypes.JSON_COMMA) {
                 tokenizer.nextToken();  //skip , tokens if found here.
                 tokenizer.parseToken();
             }
@@ -67,20 +67,20 @@ public class JsonParser {
         tokenizer.nextToken();
         tokenizer.parseToken();
 
-        while(tokenizer.tokenType() != TokenTypes.JSON_ARRAY_END) {
+        while(tokenizer.tokenType() != TokenTypes.JSON_SQUARE_BRACKET_RIGHT) {
 
             int tokenType = tokenizer.tokenType(); // extracted only for debug purposes.
 
             if(tokenizer.tokenType() == TokenTypes.JSON_STRING_TOKEN) {
                 setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE);
-            } else if(tokenizer.tokenType() == TokenTypes.JSON_OBJECT_START) {
+            } else if(tokenizer.tokenType() == TokenTypes.JSON_CURLY_BRACKET_LEFT) {
                 parseObject(tokenizer);
             }
 
             tokenizer.nextToken();
             tokenizer.parseToken();
             tokenType = tokenizer.tokenType(); // extracted only for debug purposes.
-            if(tokenizer.tokenType() == TokenTypes.JSON_PROPERTY_SEPARATOR) {
+            if(tokenizer.tokenType() == TokenTypes.JSON_COMMA) {
                 tokenizer.nextToken();
                 tokenizer.parseToken();
             }

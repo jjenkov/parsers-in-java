@@ -13,7 +13,7 @@ public class JsonParserTest {
     public void test() {
 
         DataCharBuffer dataBuffer = new DataCharBuffer();
-        dataBuffer.data = "{  key : \"value\", key2 : \"value2\" }".toCharArray();
+        dataBuffer.data = "{  \"key\" : \"value\", \"key2\" : \"value2\" }".toCharArray();
         dataBuffer.length = dataBuffer.data.length;
 
         IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
@@ -34,7 +34,7 @@ public class JsonParserTest {
     @Test
     public void testArrays() {
         DataCharBuffer dataBuffer = new DataCharBuffer();
-        dataBuffer.data = "{  key : \"value\", key2 : [ \"value2\", \"value3\" ], key3: \"value4\" }".toCharArray();
+        dataBuffer.data = "{  \"key\" : \"value\", \"key2\" : [ \"value2\", \"value3\" ], \"key3\": \"value4\" }".toCharArray();
         dataBuffer.length = dataBuffer.data.length;
 
         IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
@@ -61,7 +61,7 @@ public class JsonParserTest {
     @Test
     public void testArraysWithObjectsWithArraysWithObjects() {
         DataCharBuffer dataBuffer = new DataCharBuffer();
-        dataBuffer.data = "{  key : \"value\", key2 : [ \"value2\", { key21 : \"value22\", key22 : [ \"value221\", \"value222\"]} ], key3: \"value4\" }".toCharArray();
+        dataBuffer.data = "{  \"key\" : \"value\", \"key2\" : [ \"value2\", { \"key21\" : \"value22\", \"key22\" : [ \"value221\", \"value222\"]} ], \"key3\": \"value4\" }".toCharArray();
         dataBuffer.length = dataBuffer.data.length;
 
         IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);

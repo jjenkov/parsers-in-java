@@ -40,26 +40,26 @@ public class JsonTokenizer {
         skipWhiteSpace();
         this.tokenLength = 0;
 
-        char nextChar = this.dataBuffer.data[this.dataPosition];
         this.tokenBuffer.position[this.tokenIndex] = this.dataPosition;
+        char nextChar = this.dataBuffer.data[this.dataPosition];
 
         switch(nextChar) {
-            case '{'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_OBJECT_START; } break;
-            case '}'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_OBJECT_END  ; } break;
-            case '['   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_ARRAY_START ; } break;
-            case ']'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_ARRAY_END   ; } break;
-            case ','   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_PROPERTY_SEPARATOR; } break;
-            case ':'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_PROPERTY_NAME_VALUE_SEPARATOR; } break;
+            case '{'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_CURLY_BRACKET_LEFT; } break;
+            case '}'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_CURLY_BRACKET_RIGHT; } break;
+            case '['   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_SQUARE_BRACKET_LEFT ; } break;
+            case ']'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_SQUARE_BRACKET_RIGHT; } break;
+            case ','   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_COMMA; } break;
+            case ':'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_COLON; } break;
 
-            case '"'   :  { parsePropertyValue(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; } break;
+            case '"'   :  { parseStringToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; } break;
 
-            default    : { parsePropertyName();   this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; }
+            default    :  { parseStringToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; }
         }
 
         this.tokenBuffer.length[this.tokenIndex] = this.tokenLength;
     }
 
-    private void parsePropertyValue() {
+    private void parseStringToken() {
         this.tokenLength = 0;
 
         boolean isEndOfValueFound = false;
@@ -75,27 +75,7 @@ public class JsonTokenizer {
 
     }
 
-    private void parsePropertyName() {
-        boolean isPropertyNameChar = true;
-        this.tokenLength = 0;
-        while(isPropertyNameChar) {
-            switch(this.dataBuffer.data[this.dataPosition + this.tokenLength]) {
-                case '{'    :  ;  /* falling through is okay for all these cases - they are treated equally */
-                case '}'    :  ;
-                case '['    :  ;
-                case ']'    :  ;
-                case ','    :  ;
-                case ':'    :  ;
-                case ' '    :  ;
-                case '\r'   :  ;
-                case '\n'   :  ;
-                case '\t'   :  ;
-                case '"'    :  { isPropertyNameChar = false; } break;
 
-                default     :  { this.tokenLength++; }  /* it's a property name char - inc.token length */
-            }
-        }
-    }
 
     private void skipWhiteSpace() {
         boolean isWhiteSpace = true;
