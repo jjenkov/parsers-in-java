@@ -42,7 +42,9 @@ public class JsonParser {
             tokenizer.nextToken();
             tokenizer.parseToken();
             if(tokenizer.tokenType() == TokenTypes.JSON_STRING_TOKEN) {
-                setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE);
+                setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING);
+            } else if(tokenizer.tokenType() == TokenTypes.JSON_NUMBER_TOKEN) {
+                setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NUMBER);
             } else if(tokenizer.tokenType() == TokenTypes.JSON_SQUARE_BRACKET_LEFT) {
                 parseArray(tokenizer);
             }
@@ -72,7 +74,9 @@ public class JsonParser {
             int tokenType = tokenizer.tokenType(); // extracted only for debug purposes.
 
             if(tokenizer.tokenType() == TokenTypes.JSON_STRING_TOKEN) {
-                setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE);
+                setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_STRING);
+            } else if(tokenizer.tokenType() == TokenTypes.JSON_NUMBER_TOKEN) {
+                setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NUMBER);
             } else if(tokenizer.tokenType() == TokenTypes.JSON_CURLY_BRACKET_LEFT) {
                 parseObject(tokenizer);
             }

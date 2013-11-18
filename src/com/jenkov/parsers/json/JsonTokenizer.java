@@ -52,11 +52,45 @@ public class JsonTokenizer {
             case ':'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_COLON; } break;
 
             case '"'   :  { parseStringToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; } break;
+            case '0'   :  ;
+            case '1'   :  ;
+            case '2'   :  ;
+            case '3'   :  ;
+            case '4'   :  ;
+            case '5'   :  ;
+            case '6'   :  ;
+            case '7'   :  ;
+            case '8'   :  ;
+            case '9'   :  { parseNumberToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NUMBER_TOKEN; } break;
+
 
             default    :  { parseStringToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; }
         }
 
         this.tokenBuffer.length[this.tokenIndex] = this.tokenLength;
+    }
+
+    private void parseNumberToken() {
+        this.tokenLength = 0;
+
+        boolean isEndOfNumberFound = false;
+        while(!isEndOfNumberFound) {
+            switch(this.dataBuffer.data[this.dataPosition + this.tokenLength]){
+                case '0'   :  ;
+                case '1'   :  ;
+                case '2'   :  ;
+                case '3'   :  ;
+                case '4'   :  ;
+                case '5'   :  ;
+                case '6'   :  ;
+                case '7'   :  ;
+                case '8'   :  ;
+                case '9'   :  ;
+                case '.'   :  { this.tokenLength++; } break;
+
+                default    :  { isEndOfNumberFound = true; }
+            }
+        }
     }
 
     private void parseStringToken() {

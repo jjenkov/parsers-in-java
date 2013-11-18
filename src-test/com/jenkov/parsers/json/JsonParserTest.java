@@ -25,9 +25,9 @@ public class JsonParserTest {
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_START  , elementBuffer.type[0]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME , elementBuffer.type[1]);
-        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE, elementBuffer.type[2]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_STRING, elementBuffer.type[2]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME , elementBuffer.type[3]);
-        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE, elementBuffer.type[4]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_STRING, elementBuffer.type[4]);
         Assert.assertEquals(ElementTypes.JSON_OBJECT_END    , elementBuffer.type[5]);
     }
 
@@ -46,14 +46,14 @@ public class JsonParserTest {
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_START  , elementBuffer.type[0]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME , elementBuffer.type[1]);
-        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE, elementBuffer.type[2]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_STRING, elementBuffer.type[2]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME , elementBuffer.type[3]);
         Assert.assertEquals(ElementTypes.JSON_ARRAY_START   , elementBuffer.type[4]);
-        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE   , elementBuffer.type[5]);
-        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE   , elementBuffer.type[6]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_STRING , elementBuffer.type[5]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_STRING, elementBuffer.type[6]);
         Assert.assertEquals(ElementTypes.JSON_ARRAY_END     , elementBuffer.type[7]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME , elementBuffer.type[8]);
-        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE, elementBuffer.type[9]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_STRING, elementBuffer.type[9]);
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_END    , elementBuffer.type[10]);
     }
@@ -73,24 +73,50 @@ public class JsonParserTest {
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_START   , elementBuffer.type[ 0]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME  , elementBuffer.type[ 1]);
-        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE , elementBuffer.type[ 2]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_STRING , elementBuffer.type[ 2]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME  , elementBuffer.type[ 3]);
         Assert.assertEquals(ElementTypes.JSON_ARRAY_START    , elementBuffer.type[ 4]);
-        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE    , elementBuffer.type[ 5]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_STRING, elementBuffer.type[ 5]);
         Assert.assertEquals(ElementTypes.JSON_OBJECT_START   , elementBuffer.type[ 6]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME  , elementBuffer.type[ 7]);
-        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE , elementBuffer.type[ 8]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_STRING , elementBuffer.type[ 8]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME  , elementBuffer.type[ 9]);
         Assert.assertEquals(ElementTypes.JSON_ARRAY_START    , elementBuffer.type[10]);
-        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE    , elementBuffer.type[11]);
-        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE    , elementBuffer.type[12]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_STRING, elementBuffer.type[11]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_STRING, elementBuffer.type[12]);
         Assert.assertEquals(ElementTypes.JSON_ARRAY_END      , elementBuffer.type[13]);
         Assert.assertEquals(ElementTypes.JSON_OBJECT_END     , elementBuffer.type[14]);
         Assert.assertEquals(ElementTypes.JSON_ARRAY_END      , elementBuffer.type[15]);
         Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME  , elementBuffer.type[16]);
-        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE , elementBuffer.type[17]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_STRING , elementBuffer.type[17]);
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_END     , elementBuffer.type[18]);
+
+    }
+
+
+    @Test
+    public void testNumbers () {
+        DataCharBuffer dataBuffer = new DataCharBuffer();
+        dataBuffer.data = "{  \"key\" : 123.345, \"key2\" : [ \"value2\", 0.987 ] }".toCharArray();
+        dataBuffer.length = dataBuffer.data.length;
+
+        IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
+
+        JsonParser parser = new JsonParser();
+
+        parser.parse(dataBuffer, elementBuffer);
+
+
+        Assert.assertEquals(ElementTypes.JSON_OBJECT_START            , elementBuffer.type[ 0]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME           , elementBuffer.type[ 1]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_NUMBER   , elementBuffer.type[ 2]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME           , elementBuffer.type[ 3]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_START             , elementBuffer.type[ 4]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_STRING      , elementBuffer.type[ 5]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_NUMBER      , elementBuffer.type[ 6]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_END               , elementBuffer.type[ 7]);
+        Assert.assertEquals(ElementTypes.JSON_OBJECT_END              , elementBuffer.type[ 8]);
 
     }
 }
