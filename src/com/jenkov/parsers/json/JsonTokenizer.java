@@ -71,7 +71,7 @@ public class JsonTokenizer {
     }
 
     private void parseNumberToken() {
-        this.tokenLength = 0;
+        this.tokenLength = 1;
 
         boolean isEndOfNumberFound = false;
         while(!isEndOfNumberFound) {
