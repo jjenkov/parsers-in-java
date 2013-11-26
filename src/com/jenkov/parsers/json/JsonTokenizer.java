@@ -63,11 +63,38 @@ public class JsonTokenizer {
             case '8'   :  ;
             case '9'   :  { parseNumberToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NUMBER_TOKEN; } break;
 
+            case 'f'   :  { if(parseFalse()) { this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_BOOLEAN_TOKEN;} } break;
+            case 't'   :  { if(parseTrue())  { this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_BOOLEAN_TOKEN;} } break;
 
             default    :  { parseStringToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; }
         }
 
         this.tokenBuffer.length[this.tokenIndex] = this.tokenLength;
+    }
+
+    private boolean parseTrue() {
+        if(
+            this.dataBuffer.data[this.dataPosition + 1] == 'r' &&
+            this.dataBuffer.data[this.dataPosition + 2] == 'u' &&
+            this.dataBuffer.data[this.dataPosition + 3] == 'e' )
+        {
+            this.tokenLength = 4;
+            return true;
+        }
+        return false;
+    }
+
+    private boolean parseFalse() {
+        if(
+            this.dataBuffer.data[this.dataPosition + 1] == 'a' &&
+            this.dataBuffer.data[this.dataPosition + 2] == 'l' &&
+            this.dataBuffer.data[this.dataPosition + 3] == 's' &&
+            this.dataBuffer.data[this.dataPosition + 4] == 'e'
+                )  {
+            this.tokenLength = 5;
+            return true;
+        }
+        return false;
     }
 
     private void parseNumberToken() {

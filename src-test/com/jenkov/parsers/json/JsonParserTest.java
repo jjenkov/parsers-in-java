@@ -119,4 +119,34 @@ public class JsonParserTest {
         Assert.assertEquals(ElementTypes.JSON_OBJECT_END              , elementBuffer.type[ 8]);
 
     }
+
+
+    @Test
+    public void testBooleans() {
+        DataCharBuffer dataBuffer = new DataCharBuffer();
+        dataBuffer.data = "{  \"key\" : true, \"key2\" : [ \"value2\", 0.987, false, true ], \"key3\" : false }".toCharArray();
+        dataBuffer.length = dataBuffer.data.length;
+
+        IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
+
+        JsonParser parser = new JsonParser();
+
+        parser.parse(dataBuffer, elementBuffer);
+
+
+        Assert.assertEquals(ElementTypes.JSON_OBJECT_START            , elementBuffer.type[ 0]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME           , elementBuffer.type[ 1]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN  , elementBuffer.type[ 2]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME           , elementBuffer.type[ 3]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_START             , elementBuffer.type[ 4]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_STRING      , elementBuffer.type[ 5]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_NUMBER      , elementBuffer.type[ 6]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_BOOLEAN     , elementBuffer.type[ 7]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_VALUE_BOOLEAN     , elementBuffer.type[ 8]);
+        Assert.assertEquals(ElementTypes.JSON_ARRAY_END               , elementBuffer.type[ 9]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_NAME           , elementBuffer.type[10]);
+        Assert.assertEquals(ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN  , elementBuffer.type[11]);
+        Assert.assertEquals(ElementTypes.JSON_OBJECT_END              , elementBuffer.type[12]);
+
+    }
 }

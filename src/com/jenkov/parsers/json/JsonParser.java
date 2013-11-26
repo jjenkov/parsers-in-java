@@ -45,6 +45,8 @@ public class JsonParser {
                 setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING);
             } else if(tokenizer.tokenType() == TokenTypes.JSON_NUMBER_TOKEN) {
                 setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NUMBER);
+            } else if(tokenizer.tokenType() == TokenTypes.JSON_BOOLEAN_TOKEN) {
+                setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN);
             } else if(tokenizer.tokenType() == TokenTypes.JSON_SQUARE_BRACKET_LEFT) {
                 parseArray(tokenizer);
             }
@@ -77,6 +79,8 @@ public class JsonParser {
                 setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_STRING);
             } else if(tokenizer.tokenType() == TokenTypes.JSON_NUMBER_TOKEN) {
                 setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NUMBER);
+            } else if(tokenizer.tokenType() == TokenTypes.JSON_BOOLEAN_TOKEN) {
+                setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_BOOLEAN);
             } else if(tokenizer.tokenType() == TokenTypes.JSON_CURLY_BRACKET_LEFT) {
                 parseObject(tokenizer);
             }
