@@ -1,0 +1,3 @@
+The files in this directory are the example files found on json.org here:
+
+http://json.org/example
