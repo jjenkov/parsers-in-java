@@ -15,7 +15,8 @@ public class JsonTokenizer {
     private int dataPosition = 0;
     private int tokenLength  = 0;
 
-    public JsonTokenizer() {
+    public JsonTokenizer(IndexBuffer tokenBuffer) {
+        this.tokenBuffer = tokenBuffer;
     }
 
     public JsonTokenizer(DataCharBuffer dataBuffer, IndexBuffer tokenBuffer) {

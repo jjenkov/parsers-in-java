@@ -24,6 +24,7 @@ public class JsonOrgExamplesTest {
         parseFile("data/json-org/example-3.json.txt");
         parseFile("data/json-org/example-4.json.txt");
         parseFile("data/json-org/example-5.json.txt");
+        parseFile("data/richard-hightower/large.json.txt");
     }
 
     private static void parseFile(String filePath) throws IOException {
@@ -33,10 +34,11 @@ public class JsonOrgExamplesTest {
 
         dataBuffer.length = dataBuffer.data.length;
 
+        IndexBuffer tokenBuffer   = new IndexBuffer(dataBuffer.data.length, true);
         IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
-        JsonParser parser = new JsonParser();
+        JsonParser parser = new JsonParser(tokenBuffer, elementBuffer);
 
-        parser.parse(dataBuffer, elementBuffer);
+        parser.parse(dataBuffer);
     }
 
 

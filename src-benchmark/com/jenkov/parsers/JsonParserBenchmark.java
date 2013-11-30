@@ -20,8 +20,9 @@ public class JsonParserBenchmark {
         System.out.println("parsing: " + fileName);
 
         DataCharBuffer dataCharBuffer = FileUtil.readFile(fileName);
-        JsonParser jsonParser   = new JsonParser();
+        IndexBuffer jsonTokens   = new IndexBuffer(1024, true);
         IndexBuffer jsonElements = new IndexBuffer(1024, true);
+        JsonParser jsonParser   = new JsonParser(jsonTokens, jsonElements);
 
         int iterations = 10000000;
         long startTime = System.currentTimeMillis();
@@ -40,7 +41,7 @@ public class JsonParserBenchmark {
     }
 
     private static void parse(DataCharBuffer dataCharBuffer, JsonParser jsonParser, IndexBuffer jsonElements) {
-        jsonParser.parse(dataCharBuffer, jsonElements);
+        jsonParser.parse(dataCharBuffer);
     }
 
 }

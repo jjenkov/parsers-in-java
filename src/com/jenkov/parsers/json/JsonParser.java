@@ -9,15 +9,22 @@ import com.jenkov.parsers.core.ParserException;
  */
 public class JsonParser {
 
+    private IndexBuffer   tokenBuffer   = null;
     private IndexBuffer   elementBuffer = null;
     private int           elementIndex  = 0;
-    private JsonTokenizer jsonTokenizer = new JsonTokenizer();
+    private JsonTokenizer jsonTokenizer = null;
+
+    public JsonParser(IndexBuffer tokenBuffer, IndexBuffer elementBuffer) {
+        this.tokenBuffer   = tokenBuffer;
+        this.jsonTokenizer = new JsonTokenizer(this.tokenBuffer);
+        this.elementBuffer = elementBuffer;
+    }
 
 
-    public void parse(DataCharBuffer dataBuffer, IndexBuffer indexBuffer) {
-        this.elementBuffer = indexBuffer;
+    public void parse(DataCharBuffer dataBuffer) {
         this.elementIndex  = 0;
-        this.jsonTokenizer.reinit(dataBuffer, new IndexBuffer(dataBuffer.data.length, true));
+
+        this.jsonTokenizer.reinit(dataBuffer, this.tokenBuffer);
 
         parseObject(this.jsonTokenizer);
     }
@@ -25,37 +32,41 @@ public class JsonParser {
     private void parseObject(JsonTokenizer tokenizer) {
         assertHasMoreTokens(tokenizer);
         tokenizer.parseToken();
-        assertThisTokenType(tokenizer, TokenTypes.JSON_CURLY_BRACKET_LEFT);
+        assertThisTokenType(tokenizer.tokenType(), TokenTypes.JSON_CURLY_BRACKET_LEFT);
         setElementData     (tokenizer, ElementTypes.JSON_OBJECT_START);
 
         tokenizer.nextToken();
         tokenizer.parseToken();
+        byte tokenType = tokenizer.tokenType();
 
-        while( tokenizer.tokenType() != TokenTypes.JSON_CURLY_BRACKET_RIGHT) {
-            assertThisTokenType(tokenizer, TokenTypes.JSON_STRING_TOKEN);
+        while( tokenType != TokenTypes.JSON_CURLY_BRACKET_RIGHT) {
+            assertThisTokenType(tokenType, TokenTypes.JSON_STRING_TOKEN);
             setElementData(tokenizer, ElementTypes.JSON_PROPERTY_NAME);
 
             tokenizer.nextToken();
             tokenizer.parseToken();
-            assertThisTokenType(tokenizer, TokenTypes.JSON_COLON);
+            tokenType = tokenizer.tokenType();
+            assertThisTokenType(tokenType, TokenTypes.JSON_COLON);
 
             tokenizer.nextToken();
             tokenizer.parseToken();
-            if(tokenizer.tokenType() == TokenTypes.JSON_STRING_TOKEN) {
-                setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING);
-            } else if(tokenizer.tokenType() == TokenTypes.JSON_NUMBER_TOKEN) {
-                setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NUMBER);
-            } else if(tokenizer.tokenType() == TokenTypes.JSON_BOOLEAN_TOKEN) {
-                setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN);
-            } else if(tokenizer.tokenType() == TokenTypes.JSON_SQUARE_BRACKET_LEFT) {
-                parseArray(tokenizer);
+            tokenType = tokenizer.tokenType();
+
+
+            switch(tokenType) {
+                case TokenTypes.JSON_STRING_TOKEN  : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING);  } break;
+                case TokenTypes.JSON_NUMBER_TOKEN  : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NUMBER);  } break;
+                case TokenTypes.JSON_BOOLEAN_TOKEN : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN); } break;
+                case TokenTypes.JSON_SQUARE_BRACKET_LEFT : { parseArray(tokenizer); } break;
             }
 
             tokenizer.nextToken();
             tokenizer.parseToken();
-            if(tokenizer.tokenType() == TokenTypes.JSON_COMMA) {
+            tokenType = tokenizer.tokenType();
+            if(tokenType == TokenTypes.JSON_COMMA) {
                 tokenizer.nextToken();  //skip , tokens if found here.
                 tokenizer.parseToken();
+                tokenType = tokenizer.tokenType();
             }
 
         }
@@ -73,24 +84,25 @@ public class JsonParser {
 
         while(tokenizer.tokenType() != TokenTypes.JSON_SQUARE_BRACKET_RIGHT) {
 
-            int tokenType = tokenizer.tokenType(); // extracted only for debug purposes.
+            byte tokenType = tokenizer.tokenType(); // extracted only for debug purposes.
 
-            if(tokenizer.tokenType() == TokenTypes.JSON_STRING_TOKEN) {
-                setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_STRING);
-            } else if(tokenizer.tokenType() == TokenTypes.JSON_NUMBER_TOKEN) {
-                setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NUMBER);
-            } else if(tokenizer.tokenType() == TokenTypes.JSON_BOOLEAN_TOKEN) {
-                setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_BOOLEAN);
-            } else if(tokenizer.tokenType() == TokenTypes.JSON_CURLY_BRACKET_LEFT) {
-                parseObject(tokenizer);
+
+            switch(tokenType) {
+                case TokenTypes.JSON_STRING_TOKEN  : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_STRING);  } break;
+                case TokenTypes.JSON_NUMBER_TOKEN  : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NUMBER);  } break;
+                case TokenTypes.JSON_BOOLEAN_TOKEN : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_BOOLEAN); } break;
+                case TokenTypes.JSON_CURLY_BRACKET_LEFT : { parseObject(tokenizer); } break;
+                // todo add arrays in arrays support
             }
+
 
             tokenizer.nextToken();
             tokenizer.parseToken();
             tokenType = tokenizer.tokenType(); // extracted only for debug purposes.
-            if(tokenizer.tokenType() == TokenTypes.JSON_COMMA) {
+            if(tokenType == TokenTypes.JSON_COMMA) {
                 tokenizer.nextToken();
                 tokenizer.parseToken();
+                tokenType = tokenizer.tokenType();
             }
         }
 
@@ -104,9 +116,9 @@ public class JsonParser {
         this.elementIndex++;
     }
 
-    private void assertThisTokenType(JsonTokenizer tokenizer, byte expectedTokenType) {
-        if(tokenizer.tokenType() != expectedTokenType) {
-            throw new ParserException("Token type mismatch: Expected " + expectedTokenType + " but found " + tokenizer.tokenType());
+    private final void assertThisTokenType(byte tokenType, byte expectedTokenType) {
+        if(tokenType != expectedTokenType) {
+            throw new ParserException("Token type mismatch: Expected " + expectedTokenType + " but found " + tokenType);
         }
     }
 

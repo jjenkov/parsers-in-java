@@ -16,11 +16,12 @@ public class JsonParserTest {
         dataBuffer.data = "{  \"key\" : \"value\", \"key2\" : \"value2\" }".toCharArray();
         dataBuffer.length = dataBuffer.data.length;
 
+        IndexBuffer tokenBuffer   = new IndexBuffer(dataBuffer.data.length, true);
         IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
 
-        JsonParser parser = new JsonParser();
+        JsonParser parser = new JsonParser(tokenBuffer, elementBuffer);
 
-        parser.parse(dataBuffer, elementBuffer);
+        parser.parse(dataBuffer);
 
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_START  , elementBuffer.type[0]);
@@ -37,11 +38,12 @@ public class JsonParserTest {
         dataBuffer.data = "{  \"key\" : \"value\", \"key2\" : [ \"value2\", \"value3\" ], \"key3\": \"value4\" }".toCharArray();
         dataBuffer.length = dataBuffer.data.length;
 
+        IndexBuffer tokenBuffer   = new IndexBuffer(dataBuffer.data.length, true);
         IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
 
-        JsonParser parser = new JsonParser();
+        JsonParser parser = new JsonParser(tokenBuffer, elementBuffer);
 
-        parser.parse(dataBuffer, elementBuffer);
+        parser.parse(dataBuffer);
 
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_START  , elementBuffer.type[0]);
@@ -64,11 +66,12 @@ public class JsonParserTest {
         dataBuffer.data = "{  \"key\" : \"value\", \"key2\" : [ \"value2\", { \"key21\" : \"value22\", \"key22\" : [ \"value221\", \"value222\"]} ], \"key3\": \"value4\" }".toCharArray();
         dataBuffer.length = dataBuffer.data.length;
 
+        IndexBuffer tokenBuffer   = new IndexBuffer(dataBuffer.data.length, true);
         IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
 
-        JsonParser parser = new JsonParser();
+        JsonParser parser = new JsonParser(tokenBuffer, elementBuffer);
 
-        parser.parse(dataBuffer, elementBuffer);
+        parser.parse(dataBuffer);
 
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_START   , elementBuffer.type[ 0]);
@@ -101,11 +104,12 @@ public class JsonParserTest {
         dataBuffer.data = "{  \"key\" : 123.345, \"key2\" : [ \"value2\", 0.987 ] }".toCharArray();
         dataBuffer.length = dataBuffer.data.length;
 
+        IndexBuffer tokenBuffer   = new IndexBuffer(dataBuffer.data.length, true);
         IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
 
-        JsonParser parser = new JsonParser();
+        JsonParser parser = new JsonParser(tokenBuffer, elementBuffer);
 
-        parser.parse(dataBuffer, elementBuffer);
+        parser.parse(dataBuffer);
 
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_START            , elementBuffer.type[ 0]);
@@ -127,11 +131,12 @@ public class JsonParserTest {
         dataBuffer.data = "{  \"key\" : true, \"key2\" : [ \"value2\", 0.987, false, true ], \"key3\" : false }".toCharArray();
         dataBuffer.length = dataBuffer.data.length;
 
+        IndexBuffer tokenBuffer   = new IndexBuffer(dataBuffer.data.length, true);
         IndexBuffer elementBuffer = new IndexBuffer(dataBuffer.data.length, true);
 
-        JsonParser parser = new JsonParser();
+        JsonParser parser = new JsonParser(tokenBuffer, elementBuffer);
 
-        parser.parse(dataBuffer, elementBuffer);
+        parser.parse(dataBuffer);
 
 
         Assert.assertEquals(ElementTypes.JSON_OBJECT_START            , elementBuffer.type[ 0]);
