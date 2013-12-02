@@ -27,7 +27,12 @@ public class JsonParserBenchmark {
 
         JsonParser jsonParser    = new JsonParser(jsonTokens, jsonElements);
 
-        int iterations = 1* 1000 * 1000; //
+        int iterations = 10 * 1000 * 1000; //10.000.000 iterations to warm up JIT and minimize one-off overheads etc.
+        if(args.length > 1){
+            iterations = Integer.parseInt(args[1]);
+        }
+        System.out.println("iterations: " + iterations);
+
         long startTime = System.currentTimeMillis();
         for(int i=0; i<iterations; i++) {
             parse(dataCharBuffer, jsonParser, jsonElements);
