@@ -1,17 +1,17 @@
 { "key"   : "value",
-  "key2"  : "value2",
-  "key3"  : "value3",
+  "key2"  : 12345,
+  "key3"  : false,
 
-  "array" : [ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+  "stringArray" : [ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+  "numberArray" : [ 12345, 12345, 12345, 12345, 12345, 12345, 12345, 12345, 12345, 12345],
+  "booleanArray" : [ true, false, true, false, true, false, true, false, true, false],
 
   "sub"  : {
-             "key" : "value",
-             "key2" : "value",
-             "key3" : "value",
-             "array" : [ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
-
+             "key"  : "value",
+             "key2" : 12345,
+             "key3" : false,
+             "stringArray" : [ "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"],
+             "numberArray" : [ 12345, 12345, 12345, 12345, 12345, 12345, 12345, 12345, 12345, 12345],
+             "booleanArray" : [ true, false, true, false, true, false, true, false, true, false]
            }
-
-
-
   }
