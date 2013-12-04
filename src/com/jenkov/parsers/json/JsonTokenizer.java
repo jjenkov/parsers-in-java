@@ -39,38 +39,52 @@ public class JsonTokenizer {
 
     public void parseToken() {
         skipWhiteSpace();
-        this.tokenLength = 0;
+        //this.tokenLength = 0;
 
         this.tokenBuffer.position[this.tokenIndex] = this.dataPosition;
         char nextChar = this.dataBuffer.data[this.dataPosition];
 
         switch(nextChar) {
-            case '{'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_CURLY_BRACKET_LEFT; } break;
-            case '}'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_CURLY_BRACKET_RIGHT; } break;
-            case '['   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_SQUARE_BRACKET_LEFT ; } break;
-            case ']'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_SQUARE_BRACKET_RIGHT; } break;
-            case ','   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_COMMA; } break;
-            case ':'   :  { this.tokenLength = 1; this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_COLON; } break;
+            case '{' :  { /*this.tokenLength = 1;*/ this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_CURLY_BRACKET_LEFT; } break;
+            case '}' :  { /*this.tokenLength = 1;*/ this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_CURLY_BRACKET_RIGHT; } break;
+            case '[' :  { /*this.tokenLength = 1;*/ this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_SQUARE_BRACKET_LEFT ; } break;
+            case ']' :  { /*this.tokenLength = 1;*/ this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_SQUARE_BRACKET_RIGHT; } break;
+            case ',' :  { /*this.tokenLength = 1;*/ this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_COMMA; } break;
+            case ':' :  { /*this.tokenLength = 1;*/ this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_COLON; } break;
 
-            case '"'   :  { parseStringToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; } break;
-            case '0'   :  ;
-            case '1'   :  ;
-            case '2'   :  ;
-            case '3'   :  ;
-            case '4'   :  ;
-            case '5'   :  ;
-            case '6'   :  ;
-            case '7'   :  ;
-            case '8'   :  ;
-            case '9'   :  { parseNumberToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NUMBER_TOKEN; } break;
+            case '"' :  { parseStringToken(); } break;
+            case '0' :  ;
+            case '1' :  ;
+            case '2' :  ;
+            case '3' :  ;
+            case '4' :  ;
+            case '5' :  ;
+            case '6' :  ;
+            case '7' :  ;
+            case '8' :  ;
+            case '9' :  { parseNumberToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NUMBER_TOKEN; } break;
 
-            case 'f'   :  { if(parseFalse()) { this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_BOOLEAN_TOKEN;} } break;
-            case 't'   :  { if(parseTrue())  { this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_BOOLEAN_TOKEN;} } break;
+            case 'f' :  { if(parseFalse()) { this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_BOOLEAN_TOKEN;} } break;
+            case 't' :  { if(parseTrue())  { this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_BOOLEAN_TOKEN;} } break;
+            case 'n' :  { if(parseNull())  { this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_NULL_TOKEN;} } break;
 
-            default    :  { parseStringToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; }
+            //default    :  { parseStringToken(); this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN; }
         }
 
         this.tokenBuffer.length[this.tokenIndex] = this.tokenLength;
+    }
+
+    private boolean parseNull() {
+        if(
+            this.dataBuffer.data[this.dataPosition + 1] == 'u' &&
+            this.dataBuffer.data[this.dataPosition + 2] == 'l' &&
+            this.dataBuffer.data[this.dataPosition + 3] == 'l' )
+        {
+            //this.tokenLength = 4;
+            return true;
+        }
+        return false;
+
     }
 
     private boolean parseTrue() {
@@ -122,18 +136,24 @@ public class JsonTokenizer {
     }
 
     private void parseStringToken() {
-        this.tokenLength = 0;
-
-        boolean isEndOfValueFound = false;
-        while(!isEndOfValueFound){
-            switch(this.dataBuffer.data[this.dataPosition + this.tokenLength + 1]) {
-                case  '"' : { isEndOfValueFound = this.dataBuffer.data[this.dataPosition + this.tokenLength] != '\\'; } break;
-
-                default   : { this.tokenLength++ ; }
+        int tempPos = this.dataPosition;
+        boolean containsEncodedChars = false;
+        boolean endOfStringFound     = false;
+        while(!endOfStringFound) {
+            tempPos++;
+            switch(this.dataBuffer.data[tempPos]) {
+                case '"'  : { endOfStringFound = this.dataBuffer.data[tempPos -1] != '\\'; break; }
+                case '\\' : { containsEncodedChars = true; break; }
             }
-
         }
-        this.tokenLength += 2;  //include both start " and end " in the token.
+        if(containsEncodedChars) {
+            this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_ENC_TOKEN;
+        } else {
+            this.tokenBuffer.type[this.tokenIndex] = TokenTypes.JSON_STRING_TOKEN;
+        }
+
+        this.tokenBuffer.position[this.tokenIndex] = this.dataPosition + 1; // +1 to skip over the beginning quote char (")
+        this.tokenLength = (tempPos - this.dataPosition - 1) ; // +2 to include the enclosing quote chars ("").
 
     }
 
@@ -151,11 +171,22 @@ public class JsonTokenizer {
                 default     :  { isWhiteSpace = false; }  /* any non white space char will break the while loop */
             }
         }
-
     }
 
     public void nextToken() {
-        this.dataPosition += this.tokenBuffer.length[this.tokenIndex]; //move data position to end of current token.
+        switch(this.tokenBuffer.type[this.tokenIndex]){
+            case TokenTypes.JSON_STRING_TOKEN         : { this.dataPosition += this.tokenBuffer.length[this.tokenIndex] + 2; break;} // +2 because of the quotes
+            case TokenTypes.JSON_STRING_ENC_TOKEN     : { this.dataPosition += this.tokenBuffer.length[this.tokenIndex] + 2; break;} // +2 because of the quotes
+            case TokenTypes.JSON_CURLY_BRACKET_LEFT   : {this.dataPosition++; break;}
+            case TokenTypes.JSON_CURLY_BRACKET_RIGHT  : {this.dataPosition++; break;}
+            case TokenTypes.JSON_SQUARE_BRACKET_LEFT  : {this.dataPosition++; break;}
+            case TokenTypes.JSON_SQUARE_BRACKET_RIGHT : {this.dataPosition++; break;}
+            case TokenTypes.JSON_COLON                : {this.dataPosition++; break;}
+            case TokenTypes.JSON_COMMA                : {this.dataPosition++; break;}
+            case TokenTypes.JSON_NULL_TOKEN           : {this.dataPosition+=4; break;}
+            default                                   : {this.dataPosition += this.tokenLength;}
+        }
+        //this.dataPosition += this.tokenBuffer.length[this.tokenIndex]; //move data position to end of current token.
         this.tokenIndex++;  //point to next token index array cell.
     }
 

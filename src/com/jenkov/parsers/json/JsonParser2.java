@@ -32,6 +32,7 @@ public class JsonParser2 {
                 case ']' : { setElementDataLength1(elementBuffer, elementIndex, ElementTypes.JSON_ARRAY_END   , position); elementIndex++; popState(); break;}
                 case 'f' : { parseFalse(buffer, elementBuffer); elementIndex++;  break;}
                 case 't' : { parseTrue(buffer, elementBuffer);  elementIndex++;  break;}
+                case 'n' : { parseNull(buffer, elementBuffer);  elementIndex++;  break;}
 
                 case '0'   :  ;
                 case '1'   :  ;
@@ -51,28 +52,39 @@ public class JsonParser2 {
             }
 
         }
+        elementBuffer.count = this.elementIndex;
     }
 
 
 
-    private final int parseStringToken(DataCharBuffer dataCharBuffer, IndexBuffer elementBuffer, int elementIndex, int position) {
+    private final int parseStringToken(DataCharBuffer buffer, IndexBuffer elementBuffer, int elementIndex, int position) {
         int tempPos = position;
+        boolean containsEncodedChars = false;
         boolean endOfStringFound = false;
         while(!endOfStringFound) {
             tempPos++;
-            if(dataCharBuffer.data[tempPos] == '"') {
-                endOfStringFound = dataCharBuffer.data[tempPos -1] != '\\';
+            switch(buffer.data[tempPos]) {
+                case '"'  : { endOfStringFound = buffer.data[tempPos -1] != '\\'; break; }
+                case '\\' : { containsEncodedChars = true; break; }
             }
         }
 
         if(this.stateStack[this.stateIndex -1] == OBJECT) {
             if(this.stateStack[this.stateIndex] == FIELD_NAME) {
-                setElementData(elementBuffer, elementIndex, ElementTypes.JSON_PROPERTY_NAME        , position, tempPos - position - 1);
+                setElementData(elementBuffer, elementIndex, ElementTypes.JSON_PROPERTY_NAME , position + 1, tempPos - position - 1);
             } else {
-                setElementData(elementBuffer, elementIndex, ElementTypes.JSON_PROPERTY_VALUE_STRING, position, tempPos - position - 1);
+                if(containsEncodedChars){
+                    setElementData(elementBuffer, elementIndex, ElementTypes.JSON_PROPERTY_VALUE_STRING_ENC, position + 1, tempPos - position - 1);
+                } else {
+                    setElementData(elementBuffer, elementIndex, ElementTypes.JSON_PROPERTY_VALUE_STRING, position + 1, tempPos - position - 1);
+                }
             }
         } else { // this.stateStack[this.stateIndex -1] == ARRAY
-            setElementData(elementBuffer, elementIndex, ElementTypes.JSON_ARRAY_VALUE_STRING   , position, tempPos - position - 1);
+            if(containsEncodedChars){
+                setElementData(elementBuffer, elementIndex, ElementTypes.JSON_ARRAY_VALUE_STRING_ENC   , position + 1, tempPos - position - 1);
+            } else {
+                setElementData(elementBuffer, elementIndex, ElementTypes.JSON_ARRAY_VALUE_STRING   , position + 1, tempPos - position - 1);
+            }
         }
 
         this.position = tempPos;
@@ -145,6 +157,24 @@ public class JsonParser2 {
         this.position = tempPos -1; // -1 because the outer for-loop adds 1 to the position too
     }
 
+    private boolean parseNull(DataCharBuffer buffer, IndexBuffer elementBuffer) {
+        if(
+            buffer.data[this.position + 1] == 'u' &&
+            buffer.data[this.position + 2] == 'l' &&
+            buffer.data[this.position + 3] == 'l' )
+        {
+            if(this.stateStack[this.stateIndex -1] == OBJECT) {
+                setElementDataNoLength(elementBuffer, this.elementIndex, ElementTypes.JSON_PROPERTY_VALUE_NULL, this.position);
+            } else {
+                setElementDataNoLength(elementBuffer, this.elementIndex, ElementTypes.JSON_ARRAY_VALUE_NULL, this.position);
+            }
+            return true;
+        }
+        return false;
+
+    }
+
+
     private void setState(byte state){
         this.stateStack[this.stateIndex] = state;
     }
@@ -156,7 +186,6 @@ public class JsonParser2 {
     private void popState() {
         this.stateIndex--;
     }
-
 
     private final void setElementDataNoLength(IndexBuffer elementBuffer, int index, byte type, int position) {
         elementBuffer.type    [index] = type;
@@ -174,6 +203,5 @@ public class JsonParser2 {
         elementBuffer.position[index] = position;
         elementBuffer.length  [index] = length;
     }
-
 
 }

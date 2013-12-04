@@ -4,8 +4,6 @@ import com.jenkov.parsers.core.DataCharBuffer;
 import com.jenkov.parsers.core.IndexBuffer;
 import com.jenkov.parsers.json.JsonParser;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 
 /**

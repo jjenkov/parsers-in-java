@@ -27,6 +27,8 @@ public class JsonParser {
         this.jsonTokenizer.reinit(dataBuffer, this.tokenBuffer);
 
         parseObject(this.jsonTokenizer);
+
+        this.elementBuffer.count = this.elementIndex;
     }
 
     private void parseObject(JsonTokenizer tokenizer) {
@@ -54,9 +56,12 @@ public class JsonParser {
 
 
             switch(tokenType) {
-                case TokenTypes.JSON_STRING_TOKEN  : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING);  } break;
-                case TokenTypes.JSON_NUMBER_TOKEN  : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NUMBER);  } break;
-                case TokenTypes.JSON_BOOLEAN_TOKEN : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN); } break;
+                case TokenTypes.JSON_STRING_TOKEN        : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING);    } break;
+                case TokenTypes.JSON_STRING_ENC_TOKEN    : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_STRING_ENC);} break;
+                case TokenTypes.JSON_NUMBER_TOKEN        : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NUMBER);    } break;
+                case TokenTypes.JSON_BOOLEAN_TOKEN       : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_BOOLEAN);   } break;
+                case TokenTypes.JSON_NULL_TOKEN          : { setElementData(tokenizer, ElementTypes.JSON_PROPERTY_VALUE_NULL);      } break;
+                case TokenTypes.JSON_CURLY_BRACKET_LEFT  : { parseObject(tokenizer); } break;
                 case TokenTypes.JSON_SQUARE_BRACKET_LEFT : { parseArray(tokenizer); } break;
             }
 
@@ -71,9 +76,6 @@ public class JsonParser {
 
         }
         setElementData(tokenizer, ElementTypes.JSON_OBJECT_END);
-
-
-
     }
 
     private void parseArray(JsonTokenizer tokenizer) {
@@ -88,9 +90,11 @@ public class JsonParser {
 
 
             switch(tokenType) {
-                case TokenTypes.JSON_STRING_TOKEN  : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_STRING);  } break;
-                case TokenTypes.JSON_NUMBER_TOKEN  : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NUMBER);  } break;
-                case TokenTypes.JSON_BOOLEAN_TOKEN : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_BOOLEAN); } break;
+                case TokenTypes.JSON_STRING_TOKEN       : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_STRING);    } break;
+                case TokenTypes.JSON_STRING_ENC_TOKEN   : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_STRING_ENC);} break;
+                case TokenTypes.JSON_NUMBER_TOKEN       : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NUMBER);    } break;
+                case TokenTypes.JSON_BOOLEAN_TOKEN      : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_BOOLEAN);   } break;
+                case TokenTypes.JSON_NULL_TOKEN         : { setElementData(tokenizer, ElementTypes.JSON_ARRAY_VALUE_NULL);      } break;
                 case TokenTypes.JSON_CURLY_BRACKET_LEFT : { parseObject(tokenizer); } break;
                 // todo add arrays in arrays support
             }
@@ -98,7 +102,7 @@ public class JsonParser {
 
             tokenizer.nextToken();
             tokenizer.parseToken();
-            tokenType = tokenizer.tokenType(); // extracted only for debug purposes.
+            tokenType = tokenizer.tokenType();
             if(tokenType == TokenTypes.JSON_COMMA) {
                 tokenizer.nextToken();
                 tokenizer.parseToken();
@@ -128,6 +132,4 @@ public class JsonParser {
             throw new ParserException("Expected more tokens available in the tokenizer");
         }
     }
-
-
 }
